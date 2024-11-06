@@ -1,4 +1,5 @@
 var user = require("../models/User");
+var passwordToken = require("../models/PasswordToken")
 
 class UserController {
     async index(req, res) {
@@ -71,6 +72,19 @@ class UserController {
             res.send("Ocorreu um erro")
         }
 
+    }
+
+    async recoverPassword(req, res) {
+        var email = req.body.email;
+        var result = await passwordToken.create(email);
+
+        if (result.status) {
+            res.status(200)
+            res.send("" + result.token)
+        } else {
+            res.status(406)
+            res.send(result.erro)
+        }
     }
 }
 
