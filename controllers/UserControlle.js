@@ -42,6 +42,22 @@ class UserController {
         console.log("Usuario adicionado com sucesso")
         res.send("Usuario adicionado com sucesso")
     }
+
+    async edit(req, res) {
+        var {id, name, email, role} = req.body;
+        var result = await user.update(id, name, email, role);
+        if (result != undefined) {
+            if (result.status) {
+                res.send("Update realizado")
+            } else {
+                res.status(406);
+                res.send(result.err)
+            }
+        } else {
+            res.status(406);
+            res.send("Ocorreu um erro")
+        }
+    }
 }
 
 module.exports = new UserController();
