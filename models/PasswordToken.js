@@ -21,6 +21,29 @@ class PasswordToken {
             return {status: false, erro: "Usuario não encontrado"}
         }
     }
+
+    async validate(token) {
+       try {
+        var result = await knex.select().where({token: token}).table("passwordstoken")
+
+        if (result.length > 0) {
+            var tk = result[0];
+        
+            if (tk.used) {
+                return {status: false, tk}
+            } else {
+                return {status: true, tk}
+            }
+        } else {
+            return false
+        }
+       } catch (err) {
+        console.log(err)
+        return false
+       }
+    }
+
+    
 }
 
 module.exports = new PasswordToken();

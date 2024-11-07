@@ -115,6 +115,11 @@ class User{
             return {status: false, err: "usuario não encontrado"}
         }
     }
+
+    async changePassword(newPassword, id, token) {
+        var hash = await bcrypt.hash(newPassword, 10);
+        knex.update({password: hash}).where({id: id}).table("users")
+    }
     
 }
 
