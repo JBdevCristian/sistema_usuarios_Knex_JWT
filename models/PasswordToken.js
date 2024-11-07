@@ -23,25 +23,26 @@ class PasswordToken {
     }
 
     async validate(token) {
-       try {
-        var result = await knex.select().where({token: token}).table("passwordstoken")
-
-        if (result.length > 0) {
-            var tk = result[0];
-        
-            if (tk.used) {
-                return {status: false, tk}
+        try {
+            const result = await knex("passwordstokens").select().where({ token });
+    
+            if (result.length > 0) {
+                const tk = result[0];
+            
+                if (tk.used) {
+                    return { status: false };
+                } else {
+                    return { status: true, token: tk };
+                }
             } else {
-                return {status: true, tk}
+                return { status: false, message: "Token not found" };
             }
-        } else {
-            return false
+        } catch (err) {
+            console.log(err);
+            return { status: false, message: "An error occurred" };
         }
-       } catch (err) {
-        console.log(err)
-        return false
-       }
     }
+    
 
     
 }

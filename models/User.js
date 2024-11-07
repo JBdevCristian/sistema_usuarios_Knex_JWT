@@ -117,8 +117,8 @@ class User{
     }
 
     async changePassword(newPassword, id, token) {
-        var hash = await bcrypt.hash(newPassword, 10);
-        knex.update({password: hash}).where({id: id}).table("users")
+        var cript = await bcrypt.hash(newPassword, 10);
+        await knex.update({password: cript}).where({id: id}).table("users")
     }
     
 }
