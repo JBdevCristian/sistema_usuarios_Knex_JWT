@@ -42,6 +42,26 @@ class PasswordToken {
             return { status: false, message: "An error occurred" };
         }
     }
+
+    async setUsed(token) {
+        try {
+            // Marca o token como usado
+            const result = await knex("passwordstokens")
+                .where('token', token)
+                .update({ used: 1 });
+    
+            if (result === 0) {
+                throw new Error('Token não encontrado ou já usado.');
+            }
+    
+            // Retorno indicando sucesso
+            return { status: 200, message: 'Token marcado como usado' };
+        } catch (error) {
+            console.error('Erro ao marcar token como usado:', error);
+            throw error;
+        }
+    }
+    
     
 
     

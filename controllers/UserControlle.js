@@ -88,22 +88,29 @@ class UserController {
     }
 
     async changedPassword(req, res) {
-        var token = req.body.token;
-        var newPassword = req.body.password;
-        var isTokenValid = await passwordToken.validate(token);
-        if(isTokenValid.status) {
-            try {
-                await user.changePassword(newPassword, isTokenValid.token.user_id, isTokenValid.token);
-                res.status(200);
-                res.send("senha alterada");
-            } catch (error) {
-                console.log(error)
+        const token = req.body.token;
+        const newPassword = req.body.password;
+    
+        try {
+            // Valida o token
+            const isTokenValid = await passwordToken.validate(token);
+    
+            if (isTokenValid.status) {
+                // Chama a função para mudar a senha
+                const changePasswordResult = await user.changePassword(newPassword, isTokenValid.token.user_id, token);
+    
+                // Responde com sucesso
+                res.status(changePasswordResult.status).send(changePasswordResult.message);
+            } else {
+                // Responde com erro de token inválido
+                res.status(406).send('Token inválido');
             }
-        } else {
-            res.status(406);
-            res.send("Token invalido");
+        } catch (error) {
+            console.error('Erro ao processar a mudança de senha:', error);
+            res.status(500).send('Erro ao alterar senha');
         }
     }
+    
 }
 
 module.exports = new UserController();

@@ -1,5 +1,6 @@
 var knex = require("../database/connection");
 var bcrypt = require("bcrypt");
+const PasswordToken = require("./PasswordToken");
 
 class User{
     async new(name, email, password) { //Criação de usuario
@@ -117,9 +118,26 @@ class User{
     }
 
     async changePassword(newPassword, id, token) {
-        var cript = await bcrypt.hash(newPassword, 10);
-        await knex.update({password: cript}).where({id: id}).table("users")
+        try {
+            // Criptografa a nova senha
+            const cript = await bcrypt.hash(newPassword, 10);
+    
+            // Atualiza a senha no banco de dados
+            await knex("users")
+                .where('id', id)
+                .update({ password: cript });
+    
+            // Marca o token como usado
+            await PasswordToken.setUsed(token);
+    
+            // Retorno para indicar sucesso
+            return { status: 200, message: 'Senha alterada com sucesso' };
+        } catch (error) {
+            console.error('Erro ao alterar a senha:', error);
+            return { status: 500, message: 'Erro ao alterar a senha' };
+        }
     }
+    
     
 }
 
