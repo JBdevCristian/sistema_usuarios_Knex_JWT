@@ -1,5 +1,10 @@
 var user = require("../models/User");
 var passwordToken = require("../models/PasswordToken")
+var jwt = require('jsonwebtoken');
+var bcrypt = require("bcrypt");
+
+var secret = "asldksadkasçldk";
+
 
 class UserController {
     async index(req, res) {
@@ -61,18 +66,22 @@ class UserController {
     }
 
     async remove(req, res) {
-        var id = req.params.id;
-        var result = await user.delete(id);
-
-        if (result.status) {
-            res.status(200)
-            res.send("Usuario deletado")
-        } else {
-            res.status(406)
-            res.send("Ocorreu um erro")
+        try {
+            const id = req.params.id;
+            const result = await user.delete(id);
+    
+            if (result.status) {
+                return res.status(200).send("Usuário deletado");
+            } else {
+                const errorMessage = result.error || "Ocorreu um erro ao tentar deletar o usuário";
+                return res.status(406).send(errorMessage);
+            }
+        } catch (error) {
+            // Handle unexpected errors
+            return res.status(500).send("Erro interno do servidor");
         }
-
     }
+    
 
     async recoverPassword(req, res) {
         var email = req.body.email;
@@ -108,6 +117,34 @@ class UserController {
         } catch (error) {
             console.error('Erro ao processar a mudança de senha:', error);
             res.status(500).send('Erro ao alterar senha');
+        }
+    }
+
+    async login(req, res) {
+        try {
+            var {email, password} = req.body;
+
+            var usuario = await user.findByEmail(email);
+
+            if(usuario != undefined) {
+                var resultado = await bcrypt.compare(password, usuario.password);
+                if (resultado) {
+                    var token = jwt.sign({email: usuario.email, role: usuario.role}, secret);
+
+                    res.status(200);
+                    res.json({token: token})
+
+                } else {
+                    res.status(406);
+                    res.send("Senha incorreta")
+                }
+                res.json({status: resultado})
+            } else {
+                
+                res.json({status: false})
+            }
+        } catch (error) {
+            console.log(error)
         }
     }
     

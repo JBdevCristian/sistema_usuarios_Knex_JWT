@@ -54,7 +54,7 @@ class User{
 
     async findByEmail(email) { //Listagem de usuarios
         try {
-            var result = await knex.select(["id", "name", "email", "role"]).where({email: email}).table("users");
+            var result = await knex.select(["id", "name", "email", "password", "role"]).where({email: email}).table("users");
             if (result.length > 0) {
                 return result[0];
             } else {
@@ -104,18 +104,24 @@ class User{
     }
 
     async delete(id) {
-        var user  = await this.findById(id)
-        if (user != undefined) {
-            try {
-                await knex.delete().where({id: id}).table("users")
-                return {status: true}
-            } catch (error) {
-                return {status: false, error: error}
+        try {
+            // Exclui os registros relacionados na tabela 'passwordstokens'
+            await knex("passwordstokens").where({ user_id: id }).del();
+    
+            // Agora exclui o usuário
+            const result = await knex("users").where({ id }).del();
+    
+            if (result) {
+                return { status: true };
+            } else {
+                return { status: false, error: "Usuário não encontrado" };
             }
-        } else {
-            return {status: false, err: "usuario não encontrado"}
+        } catch (error) {
+            return { status: false, error: error.message || "Ocorreu um erro inesperado" };
         }
     }
+    
+    
 
     async changePassword(newPassword, id, token) {
         try {
