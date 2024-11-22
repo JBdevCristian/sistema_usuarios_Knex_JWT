@@ -28,7 +28,7 @@ class UserController {
         
         var {name, email, password} = req.body;
 
-        if(email == undefined || email == "") {
+        if(email == undefined || email == "" ||  email == " ") {
             res.status(400);
             res.json({err: "O e-mail é invalido"})
             return;
@@ -136,12 +136,12 @@ class UserController {
 
                 } else {
                     res.status(406);
-                    res.send("Senha incorreta")
+                    res.json({erro: "Senha incorreta"})
                 }
                 res.json({status: resultado})
             } else {
-                
-                res.json({status: false})
+                res.status(404)
+                res.json({status: false, erro: "usuario não existe!"})
             }
         } catch (error) {
             console.log(error)

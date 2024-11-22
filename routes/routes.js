@@ -7,12 +7,13 @@ var adminAuth = require("../middleware/AdminAuth");
 
 router.get('/', HomeController.index);
 router.post('/login', userController.login);
-router.post('/user', userController.create);
+router.post('/user' , adminAuth , userController.create);
 router.get('/user', adminAuth, userController.index);
-router.get('/user/:id', userController.findUser);
-router.put('/user', userController.edit);
-router.delete('/user/:id', userController.remove)
-router.post('/recoverpassword', userController.recoverPassword);
-router.post('/changedpassword', userController.changedPassword);
+router.get('/user/:id', adminAuth, userController.findUser);
+router.put('/user', adminAuth, userController.edit);
+router.delete('/user/:id', adminAuth, userController.remove)
+router.post('/recoverpassword', adminAuth, userController.recoverPassword);
+router.post('/changedpassword', adminAuth, userController.changedPassword);
+router.post('/validate', adminAuth, HomeController.validade)
 
 module.exports = router;
